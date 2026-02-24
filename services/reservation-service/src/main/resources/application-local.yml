@@ -3,15 +3,15 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: jdbc:postgresql://localhost:5432/reservationdb
-    username: app
-    password: app
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/edfms}
+    username: ${DB_USERNAME:edfms}
+    password: ${DB_PASSWORD:edfms}
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USERNAME:edfms}
+    password: ${RABBIT_PASSWORD:edfms}
+    virtual-host: ${RABBIT_VHOST:edfms}
 
 server:
-  port: 8081
-
+  port: ${RESERVATION_SERVER_PORT:8081}

@@ -2,9 +2,6 @@
 
 Minimalny szkielet uslugi rezerwacji dla projektu event-driven-facility.
 
-## Szybki start
+## Run locally
 
-1. Upewnij sie, ze PostgreSQL i RabbitMQ dzialaja lokalnie.
-2. Uruchom aplikacje przez Maven.
-
-
+Instrukcje uruchomienia sa w root README: `C:\Users\Konrad\projects\edfms\backend\README.md`.
