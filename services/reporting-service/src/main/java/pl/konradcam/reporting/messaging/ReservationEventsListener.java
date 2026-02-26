@@ -22,12 +22,12 @@ public class ReservationEventsListener {
 
     @RabbitListener(queues = EventConstants.QUEUE_REPORTING)
     public void handleReservationCreated(DomainEvent<ReservationCreatedPayload> event) {
-        logger.info("Received reservation.created event: eventId={}, reservationId={}",
-                event.eventId(), event.data().reservationId());
+        logger.info("Received event: type={}, eventId={}, reservationId={}, version={}",
+                event.eventType(), event.eventId(), event.data().reservationId(), event.eventVersion());
 
-        // Idempotencja: sprawdź czy event już przetworzony
+        // Idempotency check: skip if already processed
         if (reportingService.isEventAlreadyProcessed(event.eventId())) {
-            logger.warn("Event {} already processed, skipping", event.eventId());
+            logger.warn("Event {} already processed, skipping to maintain idempotency", event.eventId());
             return;
         }
 
@@ -43,13 +43,17 @@ public class ReservationEventsListener {
                     data.createdBy()
             );
 
-            reportingService.saveReservationReport(report);
-            reportingService.markEventProcessed(event.eventId(), event.eventType());
+            // Save report and mark event as processed in single transaction
+            reportingService.saveReservationReportAndMarkEventProcessed(
+                    report,
+                    event.eventId(),
+                    event.eventType()
+            );
 
-            logger.info("Reservation report created for reservation: {}", data.reservationId());
+            logger.info("Reservation report created successfully for reservation: {}", data.reservationId());
         } catch (Exception e) {
-            logger.error("Error processing reservation.created event", e);
-            throw new RuntimeException(e);
+            logger.error("Error processing reservation.created event: eventId={}", event.eventId(), e);
+            throw new RuntimeException("Failed to process reservation.created event", e);
         }
     }
 }

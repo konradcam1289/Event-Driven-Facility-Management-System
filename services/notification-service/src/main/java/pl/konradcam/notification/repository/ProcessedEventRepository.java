@@ -1,11 +1,12 @@
 package pl.konradcam.notification.repository;
 
-import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
-import pl.konradcam.notification.domain.ProcessedEvent;
+import pl.konradcam.contracts.event.ProcessedEvent;
 
-public interface ProcessedEventRepository extends JpaRepository<ProcessedEvent, UUID> {
-    Optional<ProcessedEvent> findByEventId(UUID eventId);
+/**
+ * Repository for ProcessedEvent in notification-service.
+ * Extends base repository from contracts module.
+ */
+public interface ProcessedEventRepository extends pl.konradcam.contracts.event.ProcessedEventRepository {
 }
 

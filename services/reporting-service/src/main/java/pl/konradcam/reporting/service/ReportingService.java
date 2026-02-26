@@ -1,13 +1,20 @@
 package pl.konradcam.reporting.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pl.konradcam.reporting.domain.ProcessedEvent;
+import org.springframework.transaction.annotation.Transactional;
+import pl.konradcam.contracts.event.ProcessedEvent;
 import pl.konradcam.reporting.domain.ReservationReport;
 import pl.konradcam.reporting.repository.ProcessedEventRepository;
 import pl.konradcam.reporting.repository.ReservationReportRepository;
 
+import java.util.UUID;
+
 @Service
 public class ReportingService {
+    private static final Logger logger = LoggerFactory.getLogger(ReportingService.class);
+
     private final ReservationReportRepository reservationReportRepository;
     private final ProcessedEventRepository processedEventRepository;
 
@@ -19,17 +26,26 @@ public class ReportingService {
         this.processedEventRepository = processedEventRepository;
     }
 
-    public void saveReservationReport(ReservationReport report) {
+    /**
+     * Saves reservation report and marks event as processed in a single transaction.
+     * This ensures atomicity - either both succeed or both fail.
+     */
+    @Transactional
+    public void saveReservationReportAndMarkEventProcessed(
+            ReservationReport report,
+            UUID eventId,
+            String eventType
+    ) {
         reservationReportRepository.save(report);
-    }
 
-    public void markEventProcessed(java.util.UUID eventId, String eventType) {
         ProcessedEvent processedEvent = new ProcessedEvent(eventId, eventType);
         processedEventRepository.save(processedEvent);
+
+        logger.debug("Saved reservation report and marked event {} as processed", eventId);
     }
 
-    public boolean isEventAlreadyProcessed(java.util.UUID eventId) {
-        return processedEventRepository.findByEventId(eventId).isPresent();
+    public boolean isEventAlreadyProcessed(UUID eventId) {
+        return processedEventRepository.existsByEventId(eventId);
     }
 }
 

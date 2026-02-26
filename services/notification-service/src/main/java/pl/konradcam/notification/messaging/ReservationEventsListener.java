@@ -22,19 +22,19 @@ public class ReservationEventsListener {
 
     @RabbitListener(queues = EventConstants.QUEUE_NOTIFICATION)
     public void handleReservationCreated(DomainEvent<ReservationCreatedPayload> event) {
-        logger.info("Received reservation.created event: eventId={}, reservationId={}",
-                event.eventId(), event.data().reservationId());
+        logger.info("Received event: type={}, eventId={}, reservationId={}, version={}",
+                event.eventType(), event.eventId(), event.data().reservationId(), event.eventVersion());
 
-        // Idempotencja: sprawdź czy event już przetworzony
+        // Idempotency check: skip if already processed
         if (notificationService.isEventAlreadyProcessed(event.eventId())) {
-            logger.warn("Event {} already processed, skipping", event.eventId());
+            logger.warn("Event {} already processed, skipping to maintain idempotency", event.eventId());
             return;
         }
 
         try {
             ReservationCreatedPayload data = event.data();
 
-            // Dla MVP: stubowy tekst powiadomienia
+            // MVP: simple notification message
             String message = String.format(
                     "Rezerwacja: %s w sali %s od %s do %s",
                     data.title(), data.roomId(), data.startAt(), data.endAt()
@@ -42,17 +42,21 @@ public class ReservationEventsListener {
 
             Notification notification = new Notification(
                     data.reservationId(),
-                    data.createdBy() + "@example.com", // Stub: używamy createdBy jako część emaila
+                    data.createdBy() + "@example.com",
                     message
             );
 
-            notificationService.saveNotification(notification);
-            notificationService.markEventProcessed(event.eventId(), event.eventType());
+            // Save notification and mark event as processed in single transaction
+            notificationService.saveNotificationAndMarkEventProcessed(
+                    notification,
+                    event.eventId(),
+                    event.eventType()
+            );
 
-            logger.info("Notification created for reservation: {}", data.reservationId());
+            logger.info("Notification created successfully for reservation: {}", data.reservationId());
         } catch (Exception e) {
-            logger.error("Error processing reservation.created event", e);
-            throw new RuntimeException(e);
+            logger.error("Error processing reservation.created event: eventId={}", event.eventId(), e);
+            throw new RuntimeException("Failed to process reservation.created event", e);
         }
     }
 }
