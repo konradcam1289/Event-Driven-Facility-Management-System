@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
-import pl.konradcam.reporting.config.RabbitMqConfig;
+import pl.konradcam.contracts.event.DomainEvent;
+import pl.konradcam.contracts.event.EventConstants;
+import pl.konradcam.contracts.reservation.ReservationCreatedPayload;
 import pl.konradcam.reporting.domain.ReservationReport;
-import pl.konradcam.reporting.messaging.model.ReservationCreatedData;
-import pl.konradcam.reporting.messaging.model.ReservationEvent;
 import pl.konradcam.reporting.service.ReportingService;
 
 @Component
@@ -20,8 +20,8 @@ public class ReservationEventsListener {
         this.reportingService = reportingService;
     }
 
-    @RabbitListener(queues = RabbitMqConfig.RESERVATION_CREATED_QUEUE)
-    public void handleReservationCreated(ReservationEvent<ReservationCreatedData> event) {
+    @RabbitListener(queues = EventConstants.QUEUE_REPORTING)
+    public void handleReservationCreated(DomainEvent<ReservationCreatedPayload> event) {
         logger.info("Received reservation.created event: eventId={}, reservationId={}",
                 event.eventId(), event.data().reservationId());
 
@@ -32,7 +32,7 @@ public class ReservationEventsListener {
         }
 
         try {
-            ReservationCreatedData data = event.data();
+            ReservationCreatedPayload data = event.data();
 
             ReservationReport report = new ReservationReport(
                     data.reservationId(),

@@ -6,15 +6,14 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import pl.konradcam.contracts.event.EventConstants;
 
 @Configuration
 public class RabbitMqConfig {
-    public static final String FACILITY_EVENTS_EXCHANGE = "facility.events";
-    public static final String RESERVATION_CREATED_ROUTING_KEY = "reservation.created";
 
     @Bean
     public TopicExchange facilityEventsExchange() {
-        return new TopicExchange(FACILITY_EVENTS_EXCHANGE);
+        return new TopicExchange(EventConstants.FACILITY_EVENTS_EXCHANGE);
     }
 
     @Bean

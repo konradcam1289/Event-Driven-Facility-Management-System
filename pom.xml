@@ -23,6 +23,7 @@
     </properties>
 
     <modules>
+        <module>contracts</module>
         <module>services/reservation-service</module>
         <module>services/notification-service</module>
         <module>services/reporting-service</module>

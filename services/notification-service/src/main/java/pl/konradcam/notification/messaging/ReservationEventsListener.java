@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
-import pl.konradcam.notification.config.RabbitMqConfig;
+import pl.konradcam.contracts.event.DomainEvent;
+import pl.konradcam.contracts.event.EventConstants;
+import pl.konradcam.contracts.reservation.ReservationCreatedPayload;
 import pl.konradcam.notification.domain.Notification;
-import pl.konradcam.notification.messaging.model.ReservationCreatedData;
-import pl.konradcam.notification.messaging.model.ReservationEvent;
 import pl.konradcam.notification.service.NotificationService;
 
 @Component
@@ -20,8 +20,8 @@ public class ReservationEventsListener {
         this.notificationService = notificationService;
     }
 
-    @RabbitListener(queues = RabbitMqConfig.RESERVATION_CREATED_QUEUE)
-    public void handleReservationCreated(ReservationEvent<ReservationCreatedData> event) {
+    @RabbitListener(queues = EventConstants.QUEUE_NOTIFICATION)
+    public void handleReservationCreated(DomainEvent<ReservationCreatedPayload> event) {
         logger.info("Received reservation.created event: eventId={}, reservationId={}",
                 event.eventId(), event.data().reservationId());
 
@@ -32,7 +32,7 @@ public class ReservationEventsListener {
         }
 
         try {
-            ReservationCreatedData data = event.data();
+            ReservationCreatedPayload data = event.data();
 
             // Dla MVP: stubowy tekst powiadomienia
             String message = String.format(

@@ -10,28 +10,26 @@ import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFacto
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import pl.konradcam.contracts.event.EventConstants;
 
 @Configuration
 public class RabbitMqConfig {
-    public static final String FACILITY_EVENTS_EXCHANGE = "facility.events";
-    public static final String RESERVATION_CREATED_ROUTING_KEY = "reservation.created";
-    public static final String RESERVATION_CREATED_QUEUE = "reservation.created.reporting";
 
     @Bean
     public TopicExchange facilityEventsExchange() {
-        return new TopicExchange(FACILITY_EVENTS_EXCHANGE);
+        return new TopicExchange(EventConstants.FACILITY_EVENTS_EXCHANGE);
     }
 
     @Bean
-    public Queue reservationCreatedQueue() {
-        return QueueBuilder.durable(RESERVATION_CREATED_QUEUE).build();
+    public Queue reportingQueue() {
+        return QueueBuilder.durable(EventConstants.QUEUE_REPORTING).build();
     }
 
     @Bean
-    public Binding reservationCreatedBinding(Queue reservationCreatedQueue, TopicExchange facilityEventsExchange) {
-        return BindingBuilder.bind(reservationCreatedQueue)
+    public Binding reportingBinding(Queue reportingQueue, TopicExchange facilityEventsExchange) {
+        return BindingBuilder.bind(reportingQueue)
                 .to(facilityEventsExchange)
-                .with(RESERVATION_CREATED_ROUTING_KEY);
+                .with(EventConstants.ROUTING_PATTERN_ALL_RESERVATIONS);
     }
 
     @Bean
