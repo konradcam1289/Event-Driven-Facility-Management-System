@@ -1,7 +1,9 @@
 package pl.konradcam.reservation.service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
+import pl.konradcam.reservation.config.EntityNotFoundException;
 import pl.konradcam.reservation.domain.Reservation;
 import pl.konradcam.reservation.messaging.ReservationEventPublisher;
 import pl.konradcam.reservation.repository.ReservationRepository;
@@ -30,6 +32,11 @@ public class ReservationService {
         Reservation saved = reservationRepository.save(reservation);
         reservationEventPublisher.publishReservationCreated(saved);
         return saved;
+    }
+
+    public Reservation getReservationById(UUID id) {
+        return reservationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Reservation not found with id: " + id));
     }
 }
 

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import pl.konradcam.reservation.domain.Reservation;
+import pl.konradcam.reservation.domain.ReservationStatus;
 
 public record ReservationResponse(
         UUID id,
@@ -12,6 +13,7 @@ public record ReservationResponse(
         LocalDateTime endAt,
         String title,
         String createdBy,
+        ReservationStatus status,
         Instant createdAt
 ) {
     public static ReservationResponse from(Reservation reservation) {
@@ -22,6 +24,7 @@ public record ReservationResponse(
                 reservation.getEndAt(),
                 reservation.getTitle(),
                 reservation.getCreatedBy(),
+                reservation.getStatus(),
                 reservation.getCreatedAt()
         );
     }

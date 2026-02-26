@@ -1,9 +1,11 @@
 package pl.konradcam.reservation.controller;
 
-import java.time.LocalDateTime;
-import java.util.Map;
+import jakarta.validation.Valid;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,12 +25,7 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody CreateReservationRequest request) {
-        if (!isValidTimeRange(request.startAt(), request.endAt())) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("message", "startAt must be before endAt"));
-        }
-
+    public ResponseEntity<ReservationResponse> create(@Valid @RequestBody CreateReservationRequest request) {
         Reservation reservation = reservationService.createReservation(
                 request.roomId(),
                 request.startAt(),
@@ -41,8 +38,10 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    private boolean isValidTimeRange(LocalDateTime startAt, LocalDateTime endAt) {
-        return startAt != null && endAt != null && startAt.isBefore(endAt);
+    @GetMapping("/{id}")
+    public ResponseEntity<ReservationResponse> getById(@PathVariable UUID id) {
+        Reservation reservation = reservationService.getReservationById(id);
+        return ResponseEntity.ok(ReservationResponse.from(reservation));
     }
 }
 

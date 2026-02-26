@@ -2,6 +2,8 @@ package pl.konradcam.reservation.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,6 +38,10 @@ public class Reservation {
     @Column(nullable = false)
     private Instant createdAt;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus status = ReservationStatus.PENDING;
+
     protected Reservation() {
     }
 
@@ -51,6 +57,7 @@ public class Reservation {
         this.endAt = endAt;
         this.title = title;
         this.createdBy = createdBy;
+        this.status = ReservationStatus.PENDING;
     }
 
     @PrePersist
@@ -58,6 +65,7 @@ public class Reservation {
         this.createdAt = Instant.now();
     }
 
+    // Getters
     public UUID getId() {
         return id;
     }
@@ -85,5 +93,14 @@ public class Reservation {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
+    public ReservationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ReservationStatus status) {
+        this.status = status;
+    }
 }
+
 

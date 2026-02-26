@@ -9,14 +9,17 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     open-in-view: false
+    show-sql: false
   rabbitmq:
     host: ${RABBIT_HOST:localhost}
     port: ${RABBIT_PORT:5672}
     username: ${RABBIT_USERNAME:edfms}
     password: ${RABBIT_PASSWORD:edfms}
     virtual-host: ${RABBIT_VHOST:edfms}
+  flyway:
+    baselineOnMigrate: true
 
 management:
   endpoints:
